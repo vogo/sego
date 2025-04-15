@@ -5,13 +5,13 @@ import (
 	"fmt"
 )
 
-// 输出分词结果为字符串
+// SegmentsToString 将分词结果转换为字符串
 //
 // 有两种输出模式，以"中华人民共和国"为例
 //
-//  普通模式（searchMode=false）输出一个分词"中华人民共和国/ns "
-//  搜索模式（searchMode=true） 输出普通模式的再细致切分：
-//      "中华/nz 人民/n 共和/nz 共和国/ns 人民共和国/nt 中华人民共和国/ns "
+//	普通模式（searchMode=false）输出一个分词"中华人民共和国/ns "
+//	搜索模式（searchMode=true） 输出普通模式的再细致切分：
+//	    "中华/nz 人民/n 共和/nz 共和国/ns 人民共和国/nt 中华人民共和国/ns "
 //
 // 搜索模式主要用于给搜索引擎提供尽可能多的关键字，详情请见Token结构体的注释。
 func SegmentsToString(segs []Segment, searchMode bool) (output string) {
@@ -47,7 +47,7 @@ func tokenToString(token *Token) (output string) {
 	return
 }
 
-// 输出分词结果到一个字符串slice
+// SegmentsToSlice 将分词结果转换为字符串切片
 //
 // 有两种输出模式，以"中华人民共和国"为例
 //
@@ -86,11 +86,12 @@ func tokenToSlice(token *Token) (output []string) {
 	return output
 }
 
-// 将多个字元拼接一个字符串输出
+// textSliceToString 将多个字元拼接为一个字符串
 func textSliceToString(text []Text) string {
 	return Join(text)
 }
 
+// Join 将 Text 切片拼接为字符串
 func Join(a []Text) string {
 	switch len(a) {
 	case 0:
@@ -119,7 +120,7 @@ func Join(a []Text) string {
 	return string(b)
 }
 
-// 返回多个字元的字节总长度
+// textSliceByteLength 返回多个字元的字节总长度
 func textSliceByteLength(text []Text) (length int) {
 	for _, word := range text {
 		length += len(word)
@@ -127,6 +128,7 @@ func textSliceByteLength(text []Text) (length int) {
 	return
 }
 
+// textSliceToBytes 将多个字元拼接为字节数组
 func textSliceToBytes(text []Text) []byte {
 	var buf bytes.Buffer
 	for _, word := range text {
