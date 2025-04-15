@@ -5,7 +5,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/huichen/sego"
+	"github.com/vogo/sego"
 	"log"
 	"os"
 	"runtime"
@@ -17,7 +17,7 @@ var (
 	numThreads = runtime.NumCPU()
 	task       = make(chan []byte, numThreads*40)
 	done       = make(chan bool, numThreads)
-	numRuns    = 50
+	//numRuns    = 50
 )
 
 func worker() {

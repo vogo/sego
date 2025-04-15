@@ -1,9 +1,11 @@
-module github.com/huichen/sego
+module github.com/vogo/sego
 
-go 1.16
+go 1.24.1
+
+require github.com/stretchr/testify v1.10.0
 
 require (
-	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d
-	github.com/adamzy/sego v0.0.0-20151004184924-5eab9a44f8e8
-	github.com/issue9/assert v1.4.1
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
