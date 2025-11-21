@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Go中文分词
 package sego
 
@@ -45,13 +62,22 @@ func (seg *Segmenter) Dictionary() *Dictionary {
 //
 //	分词文本 频率 词性
 func (seg *Segmenter) LoadDictionary(files string) {
+	seg.Load(files, nil)
+}
+
+func (seg *Segmenter) Load(files string, configTokens []*ConfigToken) {
 	seg.dict = NewDictionary()
 	for _, file := range strings.Split(files, ",") {
-		log.Printf("载入sego词典 %s", file)
+		log.Printf("load sego dict file: %s", file)
 		dictFile, err := os.Open(file)
-		defer dictFile.Close()
+		defer func() {
+			if dictFile != nil {
+				_ = dictFile.Close()
+			}
+		}()
+
 		if err != nil {
-			log.Fatalf("无法载入字典文件 \"%s\" \n", file)
+			log.Fatalf("can't load sego dict file: %s, error: %v", file, err)
 		}
 
 		reader := bufio.NewReader(dictFile)
@@ -89,21 +115,25 @@ func (seg *Segmenter) LoadDictionary(files string) {
 
 			// 将分词添加到字典中
 			words := splitTextToWords([]byte(text))
-			token := Token{text: words, frequency: frequency, pos: pos}
+			token := &Token{text: words, frequency: frequency, pos: pos}
 			seg.dict.addToken(token)
 		}
+	}
+
+	for _, token := range configTokens {
+		seg.dict.addToken(token.ToToken())
 	}
 
 	// 计算每个分词的路径值，路径值含义见Token结构体的注释
 	logTotalFrequency := float32(math.Log2(float64(seg.dict.totalFrequency)))
 	for i := range seg.dict.tokens {
-		token := &seg.dict.tokens[i]
+		token := seg.dict.tokens[i]
 		token.distance = logTotalFrequency - float32(math.Log2(float64(token.frequency)))
 	}
 
 	// 对每个分词进行细致划分，用于搜索引擎模式，该模式用法见Token结构体的注释。
 	for i := range seg.dict.tokens {
-		token := &seg.dict.tokens[i]
+		token := seg.dict.tokens[i]
 		segments := seg.segmentWords(token.text, true)
 
 		// 计算需要添加的子分词数目
@@ -125,7 +155,7 @@ func (seg *Segmenter) LoadDictionary(files string) {
 		}
 	}
 
-	log.Println("sego词典载入完毕")
+	log.Println("sego dict load completed")
 }
 
 // Segment 对文本进行分词

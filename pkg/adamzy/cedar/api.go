@@ -1,6 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package cedar
 
 // Status reports the following statistics of the cedar:
+//
 //	keys:		number of keys that are in the cedar,
 //	nodes:		number of trie nodes (slots in the base array) has been taken,
 //	size:			the size of the base array used by the cedar,
@@ -20,11 +38,14 @@ func (da *Cedar) Status() (keys, nodes, size, capacity int) {
 
 // Jump travels from a node `from` to another node `to` by following the path `path`.
 // For example, if the following keys were inserted:
+//
 //	id	key
 //	19	abc
 //	23	ab
 //	37	abcd
+//
 // then
+//
 //	Jump([]byte("ab"), 0) = 23, nil		// reach "ab" from root
 //	Jump([]byte("c"), 23) = 19, nil			// reach "abc" from "ab"
 //	Jump([]byte("cd"), 23) = 37, nil		// reach "abcd" from "ab"
@@ -148,8 +169,10 @@ func (da *Cedar) Delete(key []byte) error {
 
 // Get returns the value associated with the given `key`.
 // It is equivalent to
-//		id, err1 = Jump(key)
-//		value, err2 = Value(id)
+//
+//	id, err1 = Jump(key)
+//	value, err2 = Value(id)
+//
 // Thus, it may return ErrNoPath or ErrNoValue,
 func (da *Cedar) Get(key []byte) (value int, err error) {
 	to, err := da.Jump(key, 0)
@@ -162,11 +185,14 @@ func (da *Cedar) Get(key []byte) (value int, err error) {
 // PrefixMatch returns a list of at most `num` nodes which match the prefix of the key.
 // If `num` is 0, it returns all matches.
 // For example, if the following keys were inserted:
+//
 //	id	key
 //	19	abc
 //	23	ab
 //	37	abcd
+//
 // then
+//
 //	PrefixMatch([]byte("abc"), 1) = [ 23 ]				// match ["ab"]
 //	PrefixMatch([]byte("abcd"), 0) = [ 23, 19, 37]		// match ["ab", "abc", "abcd"]
 func (da *Cedar) PrefixMatch(key []byte, num int) (ids []int) {
@@ -191,11 +217,14 @@ func (da *Cedar) PrefixMatch(key []byte, num int) (ids []int) {
 // These nodes are ordered by their keys.
 // If `num` is 0, it returns all matches.
 // For example, if the following keys were inserted:
+//
 //	id	key
 //	19	abc
 //	23	ab
 //	37	abcd
+//
 // then
+//
 //	PrefixPredict([]byte("ab"), 2) = [ 23, 19 ]			// predict ["ab", "abc"]
 //	PrefixPredict([]byte("ab"), 0) = [ 23, 19, 37 ]		// predict ["ab", "abc", "abcd"]
 func (da *Cedar) PrefixPredict(key []byte, num int) (ids []int) {

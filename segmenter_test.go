@@ -1,12 +1,27 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package sego
 
 import (
 	"testing"
 )
 
-var (
-	prodSeg = Segmenter{}
-)
+var prodSeg = Segmenter{}
 
 func TestSplit(t *testing.T) {
 	expect(t, "中/国/有/十/三/亿/人/口/",
@@ -37,8 +52,12 @@ func TestSplit(t *testing.T) {
 
 func TestSegment(t *testing.T) {
 	var seg Segmenter
-	seg.LoadDictionary("testdata/test_dict1.txt,testdata/test_dict2.txt")
-	expect(t, "12", seg.dict.NumTokens())
+	configTokens := []*ConfigToken{
+		{Text: "猫猫", Frequency: 2, Pos: "n"},
+		{Text: "狗狗", Frequency: 2, Pos: "n"},
+	}
+	seg.Load("testdata/test_dict1.txt,testdata/test_dict2.txt", configTokens)
+	expect(t, "14", seg.dict.NumTokens())
 	segments := seg.Segment([]byte("中国有十三亿人口"))
 	expect(t, "中国/ 有/p3 十三亿/ 人口/p12 ", SegmentsToString(segments, false))
 	expect(t, "4", len(segments))
@@ -50,6 +69,14 @@ func TestSegment(t *testing.T) {
 	expect(t, "18", segments[2].end)
 	expect(t, "18", segments[3].start)
 	expect(t, "24", segments[3].end)
+	segments = seg.Segment([]byte("猫猫狗狗"))
+	expect(t, "2", len(segments))
+	expect(t, "0", segments[0].start)
+	expect(t, "6", segments[0].end)
+	expect(t, "6", segments[1].start)
+	expect(t, "12", segments[1].end)
+	expect(t, "n", segments[0].token.pos)
+	expect(t, "n", segments[1].token.pos)
 }
 
 func TestLargeDictionary(t *testing.T) {

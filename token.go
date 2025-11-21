@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package sego
 
 // 字串类型，可以用来表达
@@ -20,6 +37,14 @@ type Token struct {
 	distance float32
 
 	// 词性标注
+	// 沿用中文词性集（如 ICTCLAS/人民日报标注集），
+	// 如： n (名词)、 v (动词)、 a (形容词)、 d (副词)、 m (数词)、 q (量词)、 r (代词)、 p (介词)、
+	// c (连词)、 u (助词)、 t (时间词)、 s (处所词)、 f (方位词)、 i (成语)、 l (习用语)、 j (简称)、
+	// h (前缀)、 k (后缀)、 g (语素)、 x (字符串/未知)、 w (标点)、 z (状态词)、 b (区别词)
+	// 词典行格式通常为： 词语 频次 词性 ；不写词性时只给前两列，库会把词性置为空
+	// 分词路径选择不使用词性，主要由词频和词典匹配驱动；词性仅作为 Token.Pos() 的附加信息输出
+	// 词性不会改变切分边界或得分；是否提供词性标签对最终切分结果无直接影响
+	// 可以在分词后基于词性做结果过滤/分组（例如保留名词、去掉助词），但这是后处理逻辑，不改变分词器内部决策
 	pos string
 
 	// 该分词文本的进一步分词划分，见Segments函数注释。
@@ -71,4 +96,18 @@ func (token *Token) TextEquals(string string) bool {
 		}
 	}
 	return true
+}
+
+type ConfigToken struct {
+	Text      string `json:"text"`
+	Frequency int    `json:"frequency"`
+	Pos       string `json:"pos"`
+}
+
+func (c *ConfigToken) ToToken() *Token {
+	return &Token{
+		text:      splitTextToWords([]byte(c.Text)),
+		frequency: c.Frequency,
+		pos:       c.Pos,
+	}
 }

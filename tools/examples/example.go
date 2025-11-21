@@ -15,31 +15,23 @@
  * limitations under the License.
  */
 
-package sego
+package main
 
-// Segment 表示文本中的一个分词
-type Segment struct {
-	// 分词在文本中的起始字节位置
-	start int
+import (
+	"flag"
+	"fmt"
 
-	// 分词在文本中的结束字节位置（不包括该位置）
-	end int
+	"github.com/vogo/sego"
+)
 
-	// 分词信息
-	token *Token
-}
+var text = flag.String("text", "中国互联网历史上最大的一笔并购案", "要分词的文本")
 
-// Start 返回分词在文本中的起始字节位置
-func (s *Segment) Start() int {
-	return s.start
-}
+func main() {
+	flag.Parse()
 
-// End 返回分词在文本中的结束字节位置（不包括该位置）
-func (s *Segment) End() int {
-	return s.end
-}
+	var seg sego.Segmenter
+	seg.LoadDictionary("../data/dictionary.txt")
 
-// Token 返回分词信息
-func (s *Segment) Token() *Token {
-	return s.token
+	segments := seg.Segment([]byte(*text))
+	fmt.Println(sego.SegmentsToString(segments, true))
 }

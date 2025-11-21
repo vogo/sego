@@ -1,4 +1,4 @@
-sego
+sego - https://github.com/vogo/sego
 ====
 
 > Fork from:  https://github.com/huichen/sego
